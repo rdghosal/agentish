@@ -2,17 +2,36 @@
 # Setup script to verify and install all skills
 #
 # Checks for:
-# - Custom skills (from this repo)
+# - Custom skills (from rdghosal/skills)
 # - Planning skills (from mattpocock/skills)
 # - Tooling skills (from mitsuhiko/agent-stuff)
-# - Design skills (from Impeccable)
+# - Design skills (from pbakaus/impeccable)
 #
 # Run after cloning or to verify workspace setup.
 
 set -e
 
-SKILLS_DIR="${PI_SKILLS_DIR:-$HOME/.config/pi/agent/skills}"
-REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# Skills directories for different AI coding assistants
+# Use PI_CODING_AGENT_DIR if set, otherwise fall back to default
+PI_SKILLS_DIR="${PI_CODING_AGENT_DIR:+$PI_CODING_AGENT_DIR/skills}"
+PI_SKILLS_DIR="${PI_SKILLS_DIR:-$HOME/.pi/agent/skills}"
+AGENTS_SKILLS_DIR="${AGENTS_SKILLS_DIR:-$HOME/.agents/skills}"
+CLAUDE_SKILLS_DIR="${CLAUDE_SKILLS_DIR:-$HOME/.claude/skills}"
+OPENCODE_SKILLS_DIR="${OPENCODE_SKILLS_DIR:-$HOME/.config/opencode/skills}"
+
+# Directories that need symlinks (managed by us, not npx skills)
+SYMLINK_DIRS=(
+  "$PI_SKILLS_DIR"
+  "$OPENCODE_SKILLS_DIR"
+)
+
+# All skills directories as an array
+ALL_SKILLS_DIRS=(
+  "$PI_SKILLS_DIR"
+  "$AGENTS_SKILLS_DIR"
+  "$CLAUDE_SKILLS_DIR"
+  "$OPENCODE_SKILLS_DIR"
+)
 
 # Colors for output
 RED='\033[0;31m'
@@ -21,13 +40,21 @@ YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
-echo "=== Pi Skills Setup ==="
-echo "Skills directory: $SKILLS_DIR"
+echo "=== AI Coding Assistant Skills Setup ==="
+echo ""
+echo "Skills directories:"
+echo "  Pi:       $PI_SKILLS_DIR"
+echo "  Agents:   $AGENTS_SKILLS_DIR"
+echo "  Claude:   $CLAUDE_SKILLS_DIR"
+echo "  OpenCode: $OPENCODE_SKILLS_DIR"
 echo ""
 
-# Check if a skill exists
+# Check if a skill exists in all skills directories
 skill_exists() {
-  [ -d "$SKILLS_DIR/$1" ] || [ -f "$SKILLS_DIR/$1/SKILL.md" ]
+  for dir in "${ALL_SKILLS_DIRS[@]}"; do
+    [ -d "$dir/$1" ] || return 1
+  done
+  return 0
 }
 
 # Mark a skill as present
@@ -40,73 +67,73 @@ mark_missing() {
   printf "  ${RED}✗${NC} $1 (missing)\n"
 }
 
-# ============================================
-# Check custom skills (from this repo)
-# ============================================
-echo "Custom skills (from this repo):"
+# Check a list of skills and return missing ones via global array
+# Args: $1 = category name, $2... = skill names
+# Sets: MISSING_SKILLS array, MISSING_COUNT
+check_skills() {
+  local category="$1"
+  shift
+  MISSING_SKILLS=()
+  MISSING_COUNT=0
 
-CUSTOM_SKILLS=("init-pre-commit" "prd-to-todos" "review-and-commit")
-CUSTOM_MISSING=0
+  echo "$category:"
 
-for skill in "${CUSTOM_SKILLS[@]}"; do
-  if [ -d "$REPO_DIR/skills/$skill" ]; then
-    mark_present "$skill"
-  else
-    mark_missing "$skill"
-    CUSTOM_MISSING=1
-  fi
-done
-
-if [ $CUSTOM_MISSING -eq 1 ]; then
+  for skill in "$@"; do
+    if skill_exists "$skill"; then
+      mark_present "$skill"
+    else
+      mark_missing "$skill"
+      MISSING_SKILLS+=("$skill")
+      MISSING_COUNT=$((MISSING_COUNT + 1))
+    fi
+  done
   echo ""
-  echo "  ${YELLOW}Warning:${NC} Some custom skills are missing from the repo."
-  echo "  Make sure you've cloned the complete repository."
-fi
+}
 
-echo ""
+# Build skill args for npx skills add (multiple --skill flags)
+# Args: $1... = skill names
+# Output: sets SKILL_ARGS array
+build_skill_args() {
+  SKILL_ARGS=()
+  for skill in "$@"; do
+    SKILL_ARGS+=("--skill" "$skill")
+  done
+}
+
+# Create symlinks from ~/.agents/skills to Pi and OpenCode directories
+# Args: $1... = skill names
+symlink_skills() {
+  for skill in "$@"; do
+    # Skip if source doesn't exist
+    [ -d "$AGENTS_SKILLS_DIR/$skill" ] || continue
+
+    for target_dir in "${SYMLINK_DIRS[@]}"; do
+      # Create target directory if it doesn't exist
+      mkdir -p "$target_dir"
+
+      # Remove existing file/symlink/directory if present
+      [ -e "$target_dir/$skill" ] && rm -rf "${target_dir:?}/${skill:?}"
+
+      # Create relative symlink
+      ln -s "$AGENTS_SKILLS_DIR/$skill" "$target_dir/$skill"
+    done
+  done
+}
 
 # ============================================
-# Check mattpoclock skills
+# Skill definitions
 # ============================================
-echo "Planning skills (from mattpocock/skills):"
+CUSTOM_SKILLS=(
+  "design-an-interface"
+  "improve-codebase-architecture"
+  "init-pre-commit"
+  "prd-to-todos"
+  "review-and-commit"
+)
 
-MATTP_SKILLS=("write-a-prd" "prd-to-plan" "grill-me" "design-an-interface" "tdd" "improve-codebase-architecture")
-MATTP_MISSING=()
-
-for skill in "${MATTP_SKILLS[@]}"; do
-  if skill_exists "$skill"; then
-    mark_present "$skill"
-  else
-    mark_missing "$skill"
-    MATTP_MISSING+=("$skill")
-  fi
-done
-
-echo ""
-
-# ============================================
-# Check mitsupi skills
-# ============================================
-echo "Tooling skills (from mitsuhiko/agent-stuff via mitsupi):"
+MATTP_SKILLS=("write-a-prd" "prd-to-plan" "grill-me" "tdd")
 
 MITSU_SKILLS=("tmux" "uv" "update-changelog")
-MITSU_MISSING=()
-
-for skill in "${MITSU_SKILLS[@]}"; do
-  if skill_exists "$skill"; then
-    mark_present "$skill"
-  else
-    mark_missing "$skill"
-    MITSU_MISSING+=("$skill")
-  fi
-done
-
-echo ""
-
-# ============================================
-# Check Impeccable skills
-# ============================================
-echo "Design skills (from Impeccable):"
 
 IMPECCABLE_SKILLS=(
   "frontend-design"
@@ -123,40 +150,39 @@ IMPECCABLE_SKILLS=(
   "typeset"
   "onboard"
   "extract"
-  "animate"
-  "colorize"
-  "bolder"
-  "quieter"
-  "delight"
-  "overdrive"
   "teach-impeccable"
 )
-IMPECCABLE_COUNT=0
 
-for skill in "${IMPECCABLE_SKILLS[@]}"; do
-  if skill_exists "$skill"; then
-    IMPECCABLE_COUNT=$((IMPECCABLE_COUNT + 1))
-  fi
-done
-
-if [ $IMPECCABLE_COUNT -eq ${#IMPECCABLE_SKILLS[@]} ]; then
-  printf "  ${GREEN}✓${NC} All ${#IMPECCABLE_SKILLS[@]} Impeccable skills installed\n"
-else
-  printf "  ${RED}✗${NC} Only $IMPECCABLE_COUNT/${#IMPECCABLE_SKILLS[@]} Impeccable skills installed\n"
-fi
-
+# ============================================
+# Check all skills
+# ============================================
+echo "=== Checking Skills ==="
 echo ""
+
+check_skills "Custom skills (from rdghosal/skills)" "${CUSTOM_SKILLS[@]}"
+CUSTOM_MISSING=("${MISSING_SKILLS[@]}")
+CUSTOM_COUNT=$MISSING_COUNT
+
+check_skills "Planning skills (from mattpocock/skills)" "${MATTP_SKILLS[@]}"
+MATTP_MISSING=("${MISSING_SKILLS[@]}")
+MATTP_COUNT=$MISSING_COUNT
+
+check_skills "Tooling skills (from mitsuhiko/agent-stuff)" "${MITSU_SKILLS[@]}"
+MITSU_MISSING=("${MISSING_SKILLS[@]}")
+MITSU_COUNT=$MISSING_COUNT
+
+check_skills "Design skills (from pbakaus/impeccable)" "${IMPECCABLE_SKILLS[@]}"
+IMPECCABLE_MISSING=("${MISSING_SKILLS[@]}")
+IMPECCABLE_COUNT=$MISSING_COUNT
 
 # ============================================
 # Summary
 # ============================================
 echo "=== Summary ==="
 
-TOTAL_MATTP=${#MATTP_MISSING[@]}
-TOTAL_MITSU=${#MITSU_MISSING[@]}
-TOTAL_IMPECCABLE=$((${#IMPECCABLE_SKILLS[@]} - IMPECCABLE_COUNT))
+TOTAL_MISSING=$((CUSTOM_COUNT + MATTP_COUNT + MITSU_COUNT + IMPECCABLE_COUNT))
 
-if [ $TOTAL_MATTP -eq 0 ] && [ $TOTAL_MITSU -eq 0 ] && [ $TOTAL_IMPECCABLE -eq 0 ]; then
+if [ $TOTAL_MISSING -eq 0 ]; then
   printf "${GREEN}All skills are installed!${NC}\n"
   exit 0
 fi
@@ -164,49 +190,56 @@ fi
 printf "${YELLOW}Missing skills detected.${NC}\n\n"
 
 # ============================================
-# Installation instructions
+# Install missing skills
 # ============================================
-echo "=== Installation Instructions ==="
+echo "=== Installing Missing Skills ==="
 echo ""
 
-if [ $TOTAL_MATTP -gt 0 ]; then
-  printf "${BLUE}Planning skills:${NC}\n"
+if [ $CUSTOM_COUNT -gt 0 ]; then
+  printf "${BLUE}Installing custom skills:${NC}\n"
+  echo "  Source: https://github.com/rdghosal/skills"
+  build_skill_args "${CUSTOM_MISSING[@]}"
+  npx skills add rdghosal/skills "${SKILL_ARGS[@]}" --agent '*' -g -y
+  symlink_skills "${CUSTOM_MISSING[@]}"
+  echo ""
+fi
+
+if [ $MATTP_COUNT -gt 0 ]; then
+  printf "${BLUE}Installing planning skills:${NC}\n"
   echo "  Source: https://github.com/mattpocock/skills"
-  echo "  Missing: ${MATTP_MISSING[*]}"
-  echo ""
-  echo "  npx skills@latest add mattpocock/skills --skill '*' -g -a pi -y"
+  build_skill_args "${MATTP_MISSING[@]}"
+  npx skills add mattpocock/skills "${SKILL_ARGS[@]}" --agent '*' -g -y
+  symlink_skills "${MATTP_MISSING[@]}"
   echo ""
 fi
 
-if [ $TOTAL_MITSU -gt 0 ]; then
-  printf "${BLUE}Tooling skills:${NC}\n"
+if [ $MITSU_COUNT -gt 0 ]; then
+  printf "${BLUE}Installing tooling skills:${NC}\n"
   echo "  Source: https://github.com/mitsuhiko/agent-stuff"
-  echo "  Missing: ${MITSU_MISSING[*]}"
-  echo ""
-  echo "  # Option 1: Install via npm (if published)"
-  echo "  npm install -g mitsupi"
-  echo ""
-  echo "  # Option 2: Clone and symlink"
-  echo "  git clone https://github.com/mitsuhiko/agent-stuff.git ~/code/agent-stuff"
-  echo "  ln -s ~/code/agent-stuff/skills/* $SKILLS_DIR/"
+  build_skill_args "${MITSU_MISSING[@]}"
+  npx skills add mitsuhiko/agent-stuff "${SKILL_ARGS[@]}" --agent '*' -g -y
+  symlink_skills "${MITSU_MISSING[@]}"
   echo ""
 fi
 
-if [ $TOTAL_IMPECCABLE -gt 0 ]; then
-  printf "${BLUE}Design skills:${NC}\n"
-  echo "  Source: https://impeccable.style"
-  echo "  Missing: $TOTAL_IMPECCABLE skills"
+if [ $IMPECCABLE_COUNT -gt 0 ]; then
+  printf "${BLUE}Installing design skills:${NC}\n"
+  echo "  Source: https://github.com/pbakaus/impeccable"
+  build_skill_args "${IMPECCABLE_MISSING[@]}"
+  npx skills add pbakaus/impeccable "${SKILL_ARGS[@]}" --agent '*' -g -y
+  symlink_skills "${IMPECCABLE_MISSING[@]}"
   echo ""
-  echo "  # Download from website or clone:"
-  echo "  git clone https://github.com/paulbakaus/impeccable.git ~/code/impeccable"
-  echo "  cp -r ~/code/impeccable/dist/pi/.pi/* $SKILLS_DIR/"
-  echo ""
-  read -p "  Open impeccable.style in browser? [y/N] " -n 1 -r
-  echo
-  if [[ $REPLY =~ ^[Yy]$ ]]; then
-    open "https://impeccable.style" 2>/dev/null || xdg-open "https://impeccable.style" 2>/dev/null
-  fi
 fi
 
+# ============================================
+# Re-validate installations
+# ============================================
+echo "=== Re-validating ==="
 echo ""
-echo "Re-run this script after installation to verify."
+
+check_skills "Custom skills" "${CUSTOM_SKILLS[@]}"
+check_skills "Planning skills" "${MATTP_SKILLS[@]}"
+check_skills "Tooling skills" "${MITSU_SKILLS[@]}"
+check_skills "Design skills" "${IMPECCABLE_SKILLS[@]}"
+
+echo "=== Done ==="
