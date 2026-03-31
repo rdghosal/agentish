@@ -36,6 +36,8 @@ Skills are on-demand capabilities. Each one has a `SKILL.md` that loads when the
 
 | Skill | Does what |
 |-------|-----------|
+| `design-an-interface` | Generate multiple interface designs, compare trade-offs |
+| `improve-codebase-architecture` | Find refactoring opportunities, deepen shallow modules |
 | `init-pre-commit` | Set up pre-commit hooks (linting, formatting, security, complexity) |
 | `prd-to-todos` | Break a PRD into grabbable Pi todos |
 | `review-and-commit` | Review code and organize commits properly |
@@ -47,7 +49,7 @@ Run `./setup-skills.sh` to install skills from external sources:
 | Source | Skills |
 |--------|--------|
 | [Impeccable](https://impeccable.style) | 21 design commands (`/audit`, `/polish`, `/critique`, etc.) |
-| [mattpocock/skills](https://github.com/mattpocock/skills) | `write-a-prd`, `prd-to-plan`, `grill-me`, `design-an-interface`, `tdd`, `improve-codebase-architecture` |
+| [mattpocock/skills](https://github.com/mattpocock/skills) | `write-a-prd`, `prd-to-plan`, `grill-me`, `tdd` |
 | [mitsuhiko/agent-stuff](https://github.com/mitsuhiko/agent-stuff) | `tmux`, `uv`, `update-changelog`, `github`, `sentry`, etc. |
 
 ## Conventions
