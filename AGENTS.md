@@ -8,6 +8,14 @@
 - **Distinguish fact from inference.** State what you know from evidence, and clearly mark what you're inferring or proposing.
 - **Questions over guesses.** An asked question leads to the right answer. A guessed answer leads to rework.
 
+## Questions vs. Tasks
+
+When the user asks a question, answer it. Do not make code changes unless explicitly asked.
+
+- **Questions seek information.** "Why does this work?" "What does this do?" "Is this correct?" — Answer directly.
+- **Tasks request action.** "Fix this." "Update the README." "Add a test." — Execute the task.
+- **Ambiguous? Ask.** If unsure whether the user wants an answer or an action, ask for clarification before proceeding.
+
 ## Design Context
 
 Before doing any UI or design work, check if `.impeccable.md` exists in the project root.
