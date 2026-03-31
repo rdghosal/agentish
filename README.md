@@ -182,7 +182,3 @@ pre-commit install
 # Run all checks
 pre-commit run --all-files
 ```
-
-## License
-
-MIT
