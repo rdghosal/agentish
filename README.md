@@ -1,184 +1,104 @@
 # agentish
 
-Configuration for AI coding assistants. Provides agent instructions, coding conventions, and a library of specialized skills.
+All the ish related to agents.
 
-## What's Inside
+Configuration, conventions, and skills for AI coding assistants. Stuff to make your AI pair programmer less chaotic and more helpful.
 
-| Component | Purpose |
-|-----------|---------|
-| `AGENTS.md` | Master instructions for AI behavior — accuracy, security, commit conventions, validation |
-| `conventions/` | Language-specific coding standards (Rust, TypeScript) |
-| `skills/` | Library of 30+ specialized capabilities for design, planning, and development |
+## What's in the box
 
-## Installation
+| Thing | What it does |
+|-------|--------------|
+| `AGENTS.md` | The brain — tells the AI how to behave, commit, validate |
+| `conventions/` | Language-specific style guides (Rust, TypeScript) |
+| `skills/` | 30+ specialized powers for design, planning, dev |
 
-### For pi (recommended)
+## Setup
+
+### For pi
 
 ```bash
-# Clone the repo
 git clone git@github.com:rdghosal/agentish.git ~/.config/pi/agent
-
-# Or symlink AGENTS.md and skills if you have existing config
-ln -s /path/to/agentish/AGENTS.md ~/.config/pi/agent/AGENTS.md
-ln -s /path/to/agentish/skills ~/.config/pi/agent/skills
-ln -s /path/to/agentish/conventions ~/.config/pi/agent/conventions
 ```
 
-### For other AI tools
+Or symlink the pieces you want if you've got existing config.
 
-The `AGENTS.md` and `skills/` can be adapted for any AI coding assistant that supports custom instructions. See your tool's documentation for how to load custom prompts.
+### For other tools
 
-## Project Structure
-
-```
-agentish/
-├── AGENTS.md                    # Master agent instructions
-├── conventions/
-│   ├── rust.md                  # Rust coding standards
-│   └── typescript.md            # TypeScript coding standards
-├── skills/                      # Git submodule → rdghosal/skills
-│   ├── adapt/                   # Responsive/adaptive design
-│   ├── animate/                 # Motion & micro-interactions
-│   ├── arrange/                 # Layout & spacing
-│   ├── audit/                   # Accessibility/performance audits
-│   ├── bolder/                  # Amplify safe designs
-│   ├── clarify/                 # Improve UX copy
-│   ├── colorize/                # Strategic color
-│   ├── critique/                # UX evaluation
-│   ├── delight/                 # Joyful moments
-│   ├── design-an-interface/     # Generate interface options
-│   ├── distill/                 # Strip to essence
-│   ├── extract/                 # Extract design system components
-│   ├── frontend-design/         # Production-grade UI creation
-│   ├── grill-me/                # Stress-test plans via interview
-│   ├── harden/                  # Error handling & edge cases
-│   ├── improve-codebase-arch/   # Architecture refactoring
-│   ├── init-pre-commit/         # Pre-commit setup
-│   ├── normalize/               # Design system consistency
-│   ├── onboard/                 # First-time user experience
-│   ├── optimize/                # Performance improvement
-│   ├── overdrive/               # Technically ambitious UI
-│   ├── polish/                  # Final quality pass
-│   ├── prd-to-plan/             # PRD → implementation plan
-│   ├── prd-to-todos/            # PRD → Pi todos
-│   ├── quieter/                 # Tone down bold designs
-│   ├── review-and-commit/       # Code review & commits
-│   ├── tdd/                     # Test-driven development
-│   ├── teach-impeccable/        # Design context setup
-│   ├── tmux/                    # Remote control tmux
-│   ├── typeset/                 # Typography improvement
-│   ├── update-changelog/        # Changelog conventions
-│   ├── uv/                      # Python with uv
-│   └── write-a-prd/             # PRD creation via interview
-└── .pi/
-    └── todos/                   # Pi todo tracking
-```
+`AGENTS.md` and `skills/` work with any AI coding assistant that supports custom instructions. Adapt as needed.
 
 ## Skills
 
-Skills are specialized capabilities loaded on-demand. Each skill has a `SKILL.md` with:
+Skills are on-demand capabilities. Each one has a `SKILL.md` that loads when the task matches.
 
-- `name` — identifier
-- `description` — when to use this skill
-- Markdown content — instructions for the AI
+### Design-ish
 
-### Design & UI Skills
-
-| Skill | Description |
-|-------|-------------|
-| `adapt` | Adapt designs across screen sizes, devices, contexts |
-| `animate` | Purposeful animations and micro-interactions |
-| `arrange` | Layout, spacing, and visual rhythm |
-| `audit` | Comprehensive accessibility/performance audit |
-| `bolder` | Amplify safe or boring designs |
-| `clarify` | Improve UX copy, errors, labels |
-| `colorize` | Add strategic color |
-| `critique` | UX evaluation with actionable feedback |
-| `delight` | Joyful, memorable touches |
-| `distill` | Strip to essence, remove complexity |
-| `extract` | Extract design system components |
-| `frontend-design` | Production-grade UI with high design quality |
+| Skill | Does what |
+|-------|-----------|
+| `adapt` | Make it work everywhere (screens, devices, contexts) |
+| `animate` | Motion and micro-interactions that actually help |
+| `arrange` | Fix layouts that feel off |
+| `audit` | Accessibility, performance, theming — the full checkup |
+| `bolder` | When it's too safe and boring |
+| `clarify` | UX copy that actually makes sense |
+| `colorize` | Strategic color, not rainbow vomit |
+| `critique` | Honest UX feedback |
+| `delight` | Little moments of joy |
+| `distill` | Strip the noise |
+| `extract` | Pull out reusable components |
+| `frontend-design` | Production UI that doesn't look like AI slop |
 | `harden` | Error handling, edge cases, resilience |
-| `normalize` | Match design system, ensure consistency |
-| `onboard` | Onboarding flows and empty states |
-| `optimize` | Performance improvement |
-| `overdrive` | Technically ambitious implementations |
-| `polish` | Final quality pass before shipping |
-| `quieter` | Tone down overly bold designs |
-| `typeset` | Typography improvement |
+| `normalize` | Match your design system |
+| `onboard` | First-time user experience |
+| `optimize` | Make it fast |
+| `overdrive` | Technically ambitious stuff (shaders, physics, the fun things) |
+| `polish` | Final pass before shipping |
+| `quieter` | When it's too loud |
+| `typeset` | Typography that works |
 
-### Planning & Development Skills
+### Planning-ish
 
-| Skill | Description |
-|-------|-------------|
-| `design-an-interface` | Generate multiple interface designs |
-| `grill-me` | Interview user to stress-test a plan |
+| Skill | Does what |
+|-------|-----------|
+| `design-an-interface` | Generate different interface options |
+| `grill-me` | Stress-test your plan via interview |
 | `improve-codebase-architecture` | Find refactoring opportunities |
-| `init-pre-commit` | Set up pre-commit configuration |
-| `prd-to-plan` | Turn PRD into implementation plan |
-| `prd-to-todos` | Break PRD into Pi todos |
-| `review-and-commit` | Review code and organize commits |
+| `prd-to-plan` | PRD → implementation plan |
+| `prd-to-todos` | PRD → grabbable todos |
+| `write-a-prd` | Create a PRD through conversation |
+
+### Dev-ish
+
+| Skill | Does what |
+|-------|-----------|
+| `init-pre-commit` | Set up pre-commit hooks |
+| `review-and-commit` | Review and commit properly |
 | `tdd` | Test-driven development |
-| `write-a-prd` | Create PRD via user interview |
-
-### Tooling Skills
-
-| Skill | Description |
-|-------|-------------|
-| `teach-impeccable` | One-time design context setup |
-| `tmux` | Remote control tmux sessions |
+| `tmux` | Remote control tmux |
+| `uv` | Python with uv instead of pip hell |
 | `update-changelog` | Changelog conventions |
-| `uv` | Use uv instead of pip/python/venv |
 
 ## Conventions
 
-Language-specific coding standards that the AI loads when working with that language:
+Language-specific rules the AI loads when working in that language:
 
-- **Rust** (`conventions/rust.md`) — RFC 430 naming, error handling with `thiserror`, ownership patterns, async best practices, SQLx guidelines
-- **TypeScript** (`conventions/typescript.md`) — Strict mode, `unknown` over `any`, Zod for runtime validation, discriminated unions, React patterns
+- **Rust** — naming, error handling, ownership, async, SQLx
+- **TypeScript** — strict mode, `unknown` over `any`, Zod validation, React patterns
 
-## Philosophy
+## The philosophy-ish
 
-### Accuracy Over Guessing
+**Don't guess.** Ask when unclear. Fabricating facts leads to wrong solutions.
 
-The agent asks before assuming. When requirements or context are unclear, it seeks clarification rather than fabricating facts.
+**Keep it simple.** Low cyclomatic complexity. Code that humans and AI can both understand.
 
-### Simple Code
+**Secure by default.** Validate at boundaries. No hardcoded secrets. Fail closed.
 
-Favor low cyclomatic complexity. Simple code is easier to understand, maintain, and debug — for humans and AI alike.
+**Conventional commits.** `feat`, `fix`, `chore`, `refactor`, `docs`, `test`, `perf`.
 
-### Security by Default
+**Validate before handoff.** Tests, complexity, type checking — run the full suite.
 
-- Validate at boundaries
-- Whitelist over blacklist
-- Never trust client-side validation
-- No hardcoded secrets
-- Fail closed
-
-### Conventional Commits
-
-All commits follow [Conventional Commits](https://www.conventionalcommits.org/):
-
-```
-<type>(<scope>)[!]: <short summary>
-
-[optional body]
-
-[optional footers]
-```
-
-Types: `feat`, `fix`, `chore`, `refactor`, `docs`, `test`, `perf`
-
-### Validation Before Handoff
-
-Run the full validation suite (tests, complexity, type checking) before declaring work complete. Pre-commit hooks are fast guardrails; validation is the comprehensive check.
-
-## Development
+## Dev
 
 ```bash
-# Install pre-commit hooks
 pre-commit install
-
-# Run all checks
 pre-commit run --all-files
 ```
