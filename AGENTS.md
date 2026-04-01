@@ -20,6 +20,15 @@ Write human-readable code with low cyclomatic complexity.
 - Comment _why_, not _what_.
 - Keep functions small and single-purpose. Justify new dependencies explicitly.
 
+## Testing
+
+Prefer writing the test first. Red → green → refactor.
+
+- Start with a failing test that encodes the requirement, then write the minimum code to pass it.
+- Test behavior, not implementation. Tests should survive refactors.
+- Every test should justify its existence — assert a meaningful property, not a line of code.
+- Every test should have a clear, distinct intention. Redundant assertions waste signal.
+
 ## Security
 
 Treat all external input as untrusted. Validate at boundaries, encode at output.
