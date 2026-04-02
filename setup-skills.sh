@@ -120,6 +120,29 @@ symlink_skills() {
   done
 }
 
+# Create symlinks from local agentish/skills to all tool directories
+# Args: $1... = skill names
+symlink_custom_skills() {
+  local local_skills_dir
+  local_skills_dir="$(cd "$(dirname "$0")/skills" && pwd)"
+
+  for skill in "$@"; do
+    # Skip if source doesn't exist
+    [ -d "$local_skills_dir/$skill" ] || continue
+
+    for target_dir in "${ALL_SKILLS_DIRS[@]}"; do
+      # Create target directory if it doesn't exist
+      mkdir -p "$target_dir"
+
+      # Remove existing file/symlink/directory if present
+      [ -e "$target_dir/$skill" ] && rm -rf "${target_dir:?}/${skill:?}"
+
+      # Create symlink
+      ln -s "$local_skills_dir/$skill" "$target_dir/$skill"
+    done
+  done
+}
+
 # ============================================
 # Skill definitions
 # ============================================
@@ -197,10 +220,8 @@ echo ""
 
 if [ $CUSTOM_COUNT -gt 0 ]; then
   printf "${BLUE}Installing custom skills:${NC}\n"
-  echo "  Source: https://github.com/rdghosal/skills"
-  build_skill_args "${CUSTOM_MISSING[@]}"
-  npx skills add rdghosal/skills "${SKILL_ARGS[@]}" --agent '*' -g -y
-  symlink_skills "${CUSTOM_MISSING[@]}"
+  echo "  Source: local agentish/skills/ submodule"
+  symlink_custom_skills "${CUSTOM_MISSING[@]}"
   echo ""
 fi
 
@@ -208,7 +229,8 @@ if [ $MATTP_COUNT -gt 0 ]; then
   printf "${BLUE}Installing planning skills:${NC}\n"
   echo "  Source: https://github.com/mattpocock/skills"
   build_skill_args "${MATTP_MISSING[@]}"
-  npx skills add mattpocock/skills "${SKILL_ARGS[@]}" --agent '*' -g -y
+  # Run from $HOME to avoid detecting local skills/ directory
+  (cd "$HOME" && npx skills add mattpocock/skills "${SKILL_ARGS[@]}" --agent '*' -g -y)
   symlink_skills "${MATTP_MISSING[@]}"
   echo ""
 fi
@@ -217,7 +239,8 @@ if [ $MITSU_COUNT -gt 0 ]; then
   printf "${BLUE}Installing tooling skills:${NC}\n"
   echo "  Source: https://github.com/mitsuhiko/agent-stuff"
   build_skill_args "${MITSU_MISSING[@]}"
-  npx skills add mitsuhiko/agent-stuff "${SKILL_ARGS[@]}" --agent '*' -g -y
+  # Run from $HOME to avoid detecting local skills/ directory
+  (cd "$HOME" && npx skills add mitsuhiko/agent-stuff "${SKILL_ARGS[@]}" --agent '*' -g -y)
   symlink_skills "${MITSU_MISSING[@]}"
   echo ""
 fi
@@ -226,7 +249,8 @@ if [ $IMPECCABLE_COUNT -gt 0 ]; then
   printf "${BLUE}Installing design skills:${NC}\n"
   echo "  Source: https://github.com/pbakaus/impeccable"
   build_skill_args "${IMPECCABLE_MISSING[@]}"
-  npx skills add pbakaus/impeccable "${SKILL_ARGS[@]}" --agent '*' -g -y
+  # Run from $HOME to avoid detecting local skills/ directory
+  (cd "$HOME" && npx skills add pbakaus/impeccable "${SKILL_ARGS[@]}" --agent '*' -g -y)
   symlink_skills "${IMPECCABLE_MISSING[@]}"
   echo ""
 fi
