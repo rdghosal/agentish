@@ -21,12 +21,6 @@ AGENTS_SKILLS_DIR="${AGENTS_SKILLS_DIR:-$HOME/.agents/skills}"
 CLAUDE_SKILLS_DIR="${CLAUDE_SKILLS_DIR:-$HOME/.claude/skills}"
 OPENCODE_SKILLS_DIR="${OPENCODE_SKILLS_DIR:-$HOME/.config/opencode/skills}"
 
-# Directories that get symlinks from ~/.agents/skills/
-SYMLINK_DIRS=(
-  "$PI_SKILLS_DIR"
-  "$OPENCODE_SKILLS_DIR"
-)
-
 # All skills directories for existence checks
 ALL_SKILLS_DIRS=(
   "$PI_SKILLS_DIR"
@@ -102,23 +96,23 @@ build_skill_args() {
   done
 }
 
-# Create symlinks from ~/.agents/skills to Pi and OpenCode directories
+# Create symlinks from ~/.agents/skills to Pi directory
+# Needed because PI_CODING_AGENT_DIR may be non-standard (~/.config/pi/agent)
+# while npx skills add expects ~/.pi/agent
 # Args: $1... = skill names
-symlink_skills() {
+symlink_pi_skills() {
   for skill in "$@"; do
     # Skip if source doesn't exist
     [ -d "$AGENTS_SKILLS_DIR/$skill" ] || continue
 
-    for target_dir in "${SYMLINK_DIRS[@]}"; do
-      # Create target directory if it doesn't exist
-      mkdir -p "$target_dir"
+    # Create Pi skills directory if it doesn't exist
+    mkdir -p "$PI_SKILLS_DIR"
 
-      # Remove existing file/symlink/directory if present
-      [ -e "$target_dir/$skill" ] && rm -rf "${target_dir:?}/${skill:?}"
+    # Remove existing file/symlink/directory if present
+    [ -e "$PI_SKILLS_DIR/$skill" ] && rm -rf "${PI_SKILLS_DIR:?}/${skill:?}"
 
-      # Create symlink
-      ln -s "$AGENTS_SKILLS_DIR/$skill" "$target_dir/$skill"
-    done
+    # Create symlink
+    ln -s "$AGENTS_SKILLS_DIR/$skill" "$PI_SKILLS_DIR/$skill"
   done
 }
 
@@ -202,7 +196,7 @@ if [ $CUSTOM_COUNT -gt 0 ]; then
   echo "  Source: https://github.com/rdghosal/skills"
   build_skill_args "${CUSTOM_MISSING[@]}"
   (cd "$HOME" && npx skills add rdghosal/skills "${SKILL_ARGS[@]}" --agent '*' -g -y)
-  symlink_skills "${CUSTOM_MISSING[@]}"
+  symlink_pi_skills "${CUSTOM_MISSING[@]}"
   echo ""
 fi
 
@@ -211,7 +205,7 @@ if [ $MATTP_COUNT -gt 0 ]; then
   echo "  Source: https://github.com/mattpocock/skills"
   build_skill_args "${MATTP_MISSING[@]}"
   (cd "$HOME" && npx skills add mattpocock/skills "${SKILL_ARGS[@]}" --agent '*' -g -y)
-  symlink_skills "${MATTP_MISSING[@]}"
+  symlink_pi_skills "${MATTP_MISSING[@]}"
   echo ""
 fi
 
@@ -220,7 +214,7 @@ if [ $MITSU_COUNT -gt 0 ]; then
   echo "  Source: https://github.com/mitsuhiko/agent-stuff"
   build_skill_args "${MITSU_MISSING[@]}"
   (cd "$HOME" && npx skills add mitsuhiko/agent-stuff "${SKILL_ARGS[@]}" --agent '*' -g -y)
-  symlink_skills "${MITSU_MISSING[@]}"
+  symlink_pi_skills "${MITSU_MISSING[@]}"
   echo ""
 fi
 
@@ -229,7 +223,7 @@ if [ $IMPECCABLE_COUNT -gt 0 ]; then
   echo "  Source: https://github.com/pbakaus/impeccable"
   build_skill_args "${IMPECCABLE_MISSING[@]}"
   (cd "$HOME" && npx skills add pbakaus/impeccable "${SKILL_ARGS[@]}" --agent '*' -g -y)
-  symlink_skills "${IMPECCABLE_MISSING[@]}"
+  symlink_pi_skills "${IMPECCABLE_MISSING[@]}"
   echo ""
 fi
 
