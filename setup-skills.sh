@@ -234,29 +234,6 @@ if [ $IMPECCABLE_COUNT -gt 0 ]; then
 fi
 
 # ============================================
-# Cleanup: npx skills add may create symlinks in the directory this script runs from
-# Remove any symlinks pointing to ~/.agents/skills/
-# ============================================
-cleanup_script_dir() {
-  local script_dir
-  script_dir="$(cd "$(dirname "$0")" && pwd)"
-
-  # Only cleanup if there's a skills subdirectory
-  [ -d "$script_dir/skills" ] || return
-
-  find "$script_dir/skills" -maxdepth 1 -type l -exec sh -c '
-    for link; do
-      target=$(readlink "$link")
-      case "$target" in
-        *.agents/skills/*) rm -v "$link" ;;
-      esac
-    done
-  ' sh {} +
-}
-
-cleanup_script_dir
-
-# ============================================
 # Re-validate installations
 # ============================================
 echo "=== Re-validating ==="
