@@ -58,4 +58,4 @@ Follow [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/). T
 
 ## Validation
 
-Before declaring work complete, find and run the project's full validation suite (tests, type checking, complexity). If no dedicated command exists, run `pre-commit run --all-files`. Fix all failures before handing off.
+Before declaring work complete, find and run the project's full validation suite (tests, type checking, complexity). If no dedicated command exists, run `pre-commit run --all-files` and `pre-commit run --all-files --hook-stage pre-push`. Fix all failures before handing off.
