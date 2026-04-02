@@ -1,17 +1,16 @@
 #!/usr/bin/env bash
 # Setup script to verify and install all skills
 #
-# Checks for:
-# - Custom skills (from local agentish/skills/ submodule)
+# Installs skills from various GitHub sources:
+# - Custom skills (from rdghosal/skills)
 # - Planning skills (from mattpocock/skills)
 # - Tooling skills (from mitsuhiko/agent-stuff)
 # - Design skills (from pbakaus/impeccable)
 #
-# Run after cloning or to verify workspace setup.
+# All skills install to ~/.agents/skills/ and symlink to other tool directories.
+# The local agentish/skills/ directory is for AUTHORING only and is never touched.
 #
-# IMPORTANT: This script maintains a clear separation:
-# - agentish/skills/ contains ONLY custom skills (authored here, no symlinks)
-# - Third-party skills install to ~/.agents/skills/ and symlink to other tool dirs
+# Run after cloning or to verify workspace setup.
 
 set -e
 
@@ -103,32 +102,6 @@ build_skill_args() {
   done
 }
 
-# Copy custom skills from agentish/skills/ to ~/.agents/skills/
-# Then symlink to other tool directories
-# Args: $1... = skill names
-install_custom_skills() {
-  local local_skills_dir
-  local_skills_dir="$(cd "$(dirname "$0")/skills" && pwd)"
-
-  for skill in "$@"; do
-    # Skip if source doesn't exist
-    [ -d "$local_skills_dir/$skill" ] || continue
-
-    # Copy to ~/.agents/skills/
-    mkdir -p "$AGENTS_SKILLS_DIR"
-    [ -e "$AGENTS_SKILLS_DIR/$skill" ] && rm -rf "${AGENTS_SKILLS_DIR:?}/${skill:?}"
-    cp -R "$local_skills_dir/$skill" "$AGENTS_SKILLS_DIR/$skill"
-    printf "  ${GREEN}✓${NC} Copied $skill to ~/.agents/skills/\n"
-
-    # Symlink to other tool directories
-    for target_dir in "${SYMLINK_DIRS[@]}"; do
-      mkdir -p "$target_dir"
-      [ -e "$target_dir/$skill" ] && rm -rf "${target_dir:?}/${skill:?}"
-      ln -s "$AGENTS_SKILLS_DIR/$skill" "$target_dir/$skill"
-    done
-  done
-}
-
 # Create symlinks from ~/.agents/skills to Pi and OpenCode directories
 # Args: $1... = skill names
 symlink_skills() {
@@ -147,22 +120,6 @@ symlink_skills() {
       ln -s "$AGENTS_SKILLS_DIR/$skill" "$target_dir/$skill"
     done
   done
-}
-
-# Clean up any symlinks that npx skills add may have created in agentish/skills/
-cleanup_local_skills_dir() {
-  local local_skills_dir
-  local_skills_dir="$(cd "$(dirname "$0")/skills" && pwd)"
-
-  # Remove any symlinks pointing to ~/.agents/skills/
-  find "$local_skills_dir" -maxdepth 1 -type l -exec sh -c '
-    for link; do
-      target=$(readlink "$link")
-      case "$target" in
-        *.agents/skills/*) rm -v "$link" ;;
-      esac
-    done
-  ' sh {} +
 }
 
 # ============================================
@@ -204,7 +161,7 @@ IMPECCABLE_SKILLS=(
 echo "=== Checking Skills ==="
 echo ""
 
-check_skills "Custom skills (from local agentish/skills/)" "${CUSTOM_SKILLS[@]}"
+check_skills "Custom skills (from rdghosal/skills)" "${CUSTOM_SKILLS[@]}"
 CUSTOM_MISSING=("${MISSING_SKILLS[@]}")
 CUSTOM_COUNT=$MISSING_COUNT
 
@@ -242,8 +199,10 @@ echo ""
 
 if [ $CUSTOM_COUNT -gt 0 ]; then
   printf "${BLUE}Installing custom skills:${NC}\n"
-  echo "  Source: local agentish/skills/ submodule"
-  install_custom_skills "${CUSTOM_MISSING[@]}"
+  echo "  Source: https://github.com/rdghosal/skills"
+  build_skill_args "${CUSTOM_MISSING[@]}"
+  (cd "$HOME" && npx skills add rdghosal/skills "${SKILL_ARGS[@]}" --agent '*' -g -y)
+  symlink_skills "${CUSTOM_MISSING[@]}"
   echo ""
 fi
 
@@ -275,9 +234,27 @@ if [ $IMPECCABLE_COUNT -gt 0 ]; then
 fi
 
 # ============================================
-# Cleanup: remove any symlinks npx may have created in agentish/skills/
+# Cleanup: npx skills add may create symlinks in the directory this script runs from
+# Remove any symlinks pointing to ~/.agents/skills/
 # ============================================
-cleanup_local_skills_dir
+cleanup_script_dir() {
+  local script_dir
+  script_dir="$(cd "$(dirname "$0")" && pwd)"
+
+  # Only cleanup if there's a skills subdirectory
+  [ -d "$script_dir/skills" ] || return
+
+  find "$script_dir/skills" -maxdepth 1 -type l -exec sh -c '
+    for link; do
+      target=$(readlink "$link")
+      case "$target" in
+        *.agents/skills/*) rm -v "$link" ;;
+      esac
+    done
+  ' sh {} +
+}
+
+cleanup_script_dir
 
 # ============================================
 # Re-validate installations
