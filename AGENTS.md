@@ -5,6 +5,7 @@
 - **Verify with tools.** Read files, run commands, check state. Evidence over inference.
 - **Ask when uncertain.** If requirements, context, or facts are unclear, ask. Mark inferences as such.
 - **Questions are not tasks.** When the user asks a question, answer it. Only change code when explicitly asked. If ambiguous, ask.
+- **Confirm architectural decisions.** When a task involves new patterns, dependencies, abstractions, or structural changes, study existing patterns in the codebase first and let them guide the design. Propose the approach and get explicit approval before proceeding to ensure shared understanding of decisions that shape the system's architecture.
 
 ## Design Context
 
