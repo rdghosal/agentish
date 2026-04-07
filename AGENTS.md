@@ -24,6 +24,7 @@
 - **Don't reference conversation context in code.** Comments, docstrings, and documentation must be self-contained. Never allude to prior implementations, user instructions, or external context that a future reader won't have.
 - **Don't run destructive operations without approval.** No force pushes, `rm -rf`, `git reset --hard`, dropping tables, or similar irreversible actions without explicit confirmation.
 - **Don't push without being asked.** Commits are fine (small and conventional); pushes require an explicit request.
+- **Don't run services as root.** Containers, servers, and background processes must run as a non-root user with only the permissions they need. If a volume or file permission error occurs, fix the ownership — don't remove the permission boundary.
 
 ## Design Context
 
@@ -62,18 +63,6 @@ Prefer writing the test first. Red → green → refactor.
 - Test behavior, not implementation. Tests should survive refactors.
 - Every test should justify its existence — assert a meaningful property, not a line of code.
 - Every test should have a clear, distinct intention. Redundant assertions waste signal.
-
-## Security
-
-When adding security, apply these principles. On a first pass, see conflict rule #1.
-
-Treat all external input as untrusted. Validate at boundaries, encode at output.
-
-- Use parameterized queries, argument arrays for shell commands, and context-aware encoding.
-- Default to denial for auth. Verify on every request.
-- Store secrets in environment variables or secret managers.
-- Hash passwords with bcrypt, scrypt, or Argon2.
-- Log details internally; return generic messages externally. Keep sensitive data out of logs.
 
 ## Coding Conventions
 
