@@ -51,13 +51,7 @@ Follow existing directory conventions in the project. When no convention exists 
 
 ## Dependencies
 
-Fewer dependencies is better. Prefer the standard library and industry-standard solutions over unknown packages.
-
-- **Add a dependency when** the alternative is maintaining non-trivial domain logic (e.g., audio processing, cryptography) that well-tested libraries already solve.
-- **Avoid a dependency when** the functionality is straightforward to implement and maintain in-house.
-- When adding one, choose libraries that are recent, popular, actively maintained, and well-supported.
-- **Confirm before adding.** Propose the dependency with rationale and get approval before installing.
-- **Install locally**, not globally. Use project-level installs for development and testing. If it's unclear where something should be installed, ask.
+Before suggesting or adding a dependency, load `~/.claude/security/dependencies.md` and follow its rules.
 
 ## Testing
 
@@ -84,6 +78,7 @@ Follow [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/). T
 - Summary: imperative mood, ≤72 chars, no trailing period.
 - Body: explain _why_. Wrap at 100 chars.
 - Breaking changes: append `!` after scope **and** include a `BREAKING CHANGE:` footer.
+- **Amend only for commit message fixes.** Feedback and follow-up changes go in a new commit. Fix forward, don't rewrite history.
 
 ## Validation
 
