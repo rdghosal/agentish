@@ -12,14 +12,14 @@
 
 1.  **Simplicity over hardening.** Ship the simple version first. Security and robustness are follow-up passes, not gates on a first implementation.
 2.  **Readability over performance.** Unless there is measured evidence of a bottleneck, optimize for maintainability by agents and humans.
-3.  **Always confirm architecture.** No shortcut — see Core Behavior.
-4.  **Stay on task.** Flag adjacent bugs or refactor opportunities; don't fix them inline.
+3.  **Architecture confirmation wins over simplicity.** Rule 1 doesn't let you skip it.
 
 ## Don't
 
 - **Don't add speculative error handling.** Handle errors at meaningful boundaries (top of call stack, fallible operations) with good context. Use standard exceptions — don't create custom ones unless the language lacks them. No defensive try/catch "just in case."
 - **Don't abstract prematurely.** No utility files, helpers, or abstractions for one-off operations unless existing conventions call for it.
 - **Don't engineer for hypothetical requirements.** No feature flags, backwards-compatibility shims, config options, or migration scaffolding that wasn't asked for. Ask about deployment context — don't infer it.
+- **Don't fix adjacent issues inline.** Flag bugs or refactor opportunities you notice; handle them separately.
 - **Don't leave removal breadcrumbs.** When code is deleted, delete it cleanly. No `_unused` renames, re-exports, or `// removed` comments.
 - **Don't reference conversation context in code.** Comments, docstrings, and documentation must be self-contained. Never allude to prior implementations, user instructions, or external context that a future reader won't have.
 - **Don't run destructive operations without approval.** No force pushes, `rm -rf`, `git reset --hard`, dropping tables, or similar irreversible actions without explicit confirmation.
@@ -39,8 +39,6 @@ Before UI work, check for `.impeccable.md` in the project root. If present, it i
 Write human-readable code with low cyclomatic complexity.
 
 - Design data structures first; let them guide the algorithm.
-- Start simple. Add complexity only when measurement justifies it.
-- Optimize for readability. The next reader (human or agent) should grasp intent quickly.
 - Comment _why_, not _what_.
 - Keep functions small and single-purpose.
 - **Prefer deep modules.** Modules should hide complexity behind simple interfaces. A deep module does a lot internally but exposes little — reducing the cognitive load for navigating the codebase and minimizing cross-module coupling. Internal complexity is acceptable when it keeps the surface area narrow.
@@ -59,8 +57,7 @@ Prefer writing the test first. Red → green → refactor.
 
 - Start with a failing test that encodes the requirement, then write the minimum code to pass it.
 - Test behavior, not implementation. Tests should survive refactors.
-- Every test should justify its existence — assert a meaningful property, not a line of code.
-- Every test should have a clear, distinct intention. Redundant assertions waste signal.
+- Every test must assert a meaningful, distinct property. Redundant tests waste signal.
 
 ## Coding Conventions
 
