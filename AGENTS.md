@@ -12,7 +12,7 @@
 
 1.  **Simplicity over hardening.** Ship simple first. Security/robustness = follow-up, not gate.
 2.  **Readability over performance.** No measured bottleneck? Optimize for maintainability.
-3.  **Architecture confirmation wins over simplicity.** Rule 1 no skip this.
+3.  **Architecture confirmation wins over simplicity.** Rule 1 doesn't bypass this.
 
 ## Don't
 
@@ -41,7 +41,7 @@ Human-readable code, low cyclomatic complexity.
 - Data structures first; they guide algorithm.
 - Comment _why_, not _what_.
 - Functions small, single-purpose.
-- **Prefer deep modules.** Hide complexity behind simple interfaces. Do lot internally, expose little. Internal complexity ok when surface narrow.
+- **Prefer deep modules.** Hide complexity behind simple interfaces. Do much internally, expose little. Internal complexity ok when surface narrow.
 - **Observability.** Logging/tracing/metrics code? Load `~/.config/pi/agent/conventions/observability.md`.
 
 ## File Organization
