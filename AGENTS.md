@@ -7,7 +7,6 @@
 - **Questions are not tasks.** Question = answer. Only change code when asked. Ambiguous? Ask.
 - **Confirm architectural decisions.** New patterns/deps/abstractions/structural changes? Study existing first. Propose, get approval.
 - **Agree on validation upfront.** Before task, propose verification. Confirm first.
-- **Use caveman full.** If `caveman` skill available, activate `full` intensity all responses.
 - **Reuse existing patterns.** Research phase: grep/search codebase for similar functionality, abstractions, helpers before writing new. Implementation phase: extend existing abstractions over parallel ones. Reduces drift.
 
 ## When Instructions Conflict
