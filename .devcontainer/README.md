@@ -77,8 +77,11 @@ Agent state (`claude`, `pi`) is RW so sessions persist across rebuilds.
 
 ## Known gaps
 
--  `rustup component add` will fail — `static.rust-lang.org` isn't in the
-  allowlist. Add it if you need extra toolchains.
+-  Stable Rust + `rust-analyzer`, `clippy`, `rustfmt` are baked in at
+  build time. Adding other toolchains or components at runtime
+  (`rustup install nightly`, `rustup component add miri`) will fail —
+  `static.rust-lang.org` isn't in the runtime allowlist. Bake extras into
+  the Dockerfile, or add the host.
 -  Neovim plugins that fetch from hosts other than GitHub will fail on first
   `:Lazy sync`. Add the host to `ALLOWED_HOSTS`.
 -  The `brew --prefix` shim in [`post-create.sh`](./post-create.sh) only

@@ -41,9 +41,5 @@
 
   // Re-apply the firewall every time the container starts (refreshes resolved
   // IPs; allowlisted services rotate behind CDNs).
-  "postStartCommand": "sudo /usr/local/bin/init-firewall.sh",
-
-  // Default command when you `devcontainer exec` — drop into a login zsh so
-  // the mounted .zshrc sources.
-  "overrideCommand": false
+  "postStartCommand": "sudo /usr/local/bin/init-firewall.sh"
 }

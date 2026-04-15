@@ -60,4 +60,11 @@ COPY init-firewall.sh /usr/local/bin/init-firewall.sh
 RUN chmod +x /usr/local/bin/init-firewall.sh
 
 USER ${USERNAME}
+
+# Rust (user-scoped) — installed at build time so we don't need to open up
+# sh.rustup.rs / static.rust-lang.org in the runtime firewall allowlist.
+RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs \
+    | sh -s -- -y --default-toolchain stable --profile minimal \
+ && /home/${USERNAME}/.cargo/bin/rustup component add rust-analyzer clippy rustfmt
+
 SHELL ["/bin/zsh", "-c"]

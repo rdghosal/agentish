@@ -48,12 +48,8 @@ if [[ "$(getent passwd "$USER" | cut -d: -f7)" != "$(command -v zsh)" ]]; then
   sudo chsh -s "$(command -v zsh)" "$USER"
 fi
 
-# --- Rust (user-scoped) --------------------------------------------------------
-# The zshrc sources ~/.cargo/env, so rustup must live in $HOME.
-if [[ ! -d "$HOME/.cargo" ]]; then
-  curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs |
-    sh -s -- -y --default-toolchain stable --profile minimal
-fi
+# Rust is installed in the image (see Dockerfile) so the runtime firewall
+# doesn't need to allow sh.rustup.rs / static.rust-lang.org.
 
 # --- 1Password service-account token ------------------------------------------
 # The host binds ~/.config/secrets/op-sa-token RO; export it into the shell
