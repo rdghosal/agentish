@@ -10,16 +10,13 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
       zsh tmux git curl ca-certificates gnupg unzip \
       build-essential pkg-config \
       python3 python3-pip python3-venv pipx \
-      iptables ipset dnsutils iproute2 \
       fd-find fzf bat ripgrep jq less man-db \
     && rm -rf /var/lib/apt/lists/*
 
-# Ubuntu ships fd-find as `fdfind` and bat as `batcat`; alias to the names
-# the user's zshrc/nvim configs expect.
 RUN ln -sf /usr/bin/fdfind /usr/local/bin/fd \
  && ln -sf /usr/bin/batcat /usr/local/bin/bat
 
-# Neovim — use the official appimage-extracted binary for a current version
+# Neovim
 RUN curl -fsSL -o /tmp/nvim.tar.gz \
       https://github.com/neovim/neovim/releases/latest/download/nvim-linux-x86_64.tar.gz \
  && tar -C /opt -xzf /tmp/nvim.tar.gz \
@@ -30,9 +27,6 @@ RUN curl -fsSL -o /tmp/nvim.tar.gz \
 RUN curl -fsSL https://deb.nodesource.com/setup_22.x | bash - \
  && apt-get install -y --no-install-recommends nodejs \
  && rm -rf /var/lib/apt/lists/*
-
-# Rust toolchain — user-scoped install happens in post-create; only install
-# rustup prerequisites here.
 
 # 1Password CLI
 RUN curl -fsSL https://downloads.1password.com/linux/keys/1password.asc \
@@ -50,19 +44,9 @@ RUN npm install -g @mariozechner/pi-coding-agent @anthropic-ai/claude-code \
 RUN curl -fsSL https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh \
       | bash -s -- --bin-dir /usr/local/bin
 
-# Allow the firewall init to run with sudo without a password — it's the only
-# privileged action the user performs, and it runs once at container start.
-RUN echo "${USERNAME} ALL=(root) NOPASSWD: /usr/local/bin/init-firewall.sh" \
-      > /etc/sudoers.d/init-firewall \
- && chmod 0440 /etc/sudoers.d/init-firewall
-
-COPY init-firewall.sh /usr/local/bin/init-firewall.sh
-RUN chmod +x /usr/local/bin/init-firewall.sh
-
 USER ${USERNAME}
 
-# Rust (user-scoped) — installed at build time so we don't need to open up
-# sh.rustup.rs / static.rust-lang.org in the runtime firewall allowlist.
+# Rust (user-scoped, at build time to avoid needing sh.rustup.rs in the firewall allowlist)
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs \
     | sh -s -- -y --default-toolchain stable --profile minimal \
  && /home/${USERNAME}/.cargo/bin/rustup component add rust-analyzer clippy rustfmt

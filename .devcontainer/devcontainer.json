@@ -2,29 +2,34 @@
   "name": "agentish-sandbox",
   "build": { "dockerfile": "Dockerfile" },
 
-  // NET_ADMIN lets init-firewall.sh manage iptables/ipset.
-  // NET_RAW is needed for conntrack matching.
-  "capAdd": ["NET_ADMIN", "NET_RAW"],
+  "features": {
+    "ghcr.io/w3cj/devcontainer-features/firewall:0": {
+      "verbose": true,
+      "claudeCode": true,
+      "mistralApi": true,
+      "githubDomains": true,
+      "githubIps": true,
+      "npmRegistry": true,
+      "pypi": true,
+      "cratesIoRegistry": true,
+      "ubuntuPackages": true,
+      "hosts": "opencode.ai,api.opencode.ai,my.1password.com,events.1password.com"
+    }
+  },
 
   "remoteUser": "vscode",
   "containerUser": "vscode",
 
   "mounts": [
-    // Shell + editor configs — read-only to prevent the container from
-    // mutating host config files (nvim lazy-lock, etc. still get written to
-    // the container-side state dirs, not here).
     "source=${localEnv:HOME}/.config/nvim,target=/home/vscode/.config/nvim,type=bind,readonly",
     "source=${localEnv:HOME}/.config/zsh,target=/home/vscode/.config/zsh,type=bind,readonly",
     "source=${localEnv:HOME}/.config/bat,target=/home/vscode/.config/bat,type=bind,readonly",
     "source=${localEnv:HOME}/.config/git,target=/home/vscode/.config/git,type=bind,readonly",
     "source=${localEnv:HOME}/.config/tmux,target=/home/vscode/.config/tmux,type=bind,readonly",
 
-    // Agent state — RW so sessions/auth persist across container rebuilds.
     "source=${localEnv:HOME}/.config/claude,target=/home/vscode/.config/claude,type=bind",
     "source=${localEnv:HOME}/.config/pi,target=/home/vscode/.config/pi,type=bind",
 
-    // Secrets — RO. Contains op-sa-token (1Password SA) and op-secrets
-    // (env file consumed by `op run`).
     "source=${localEnv:HOME}/.config/secrets,target=/home/vscode/.config/secrets,type=bind,readonly"
   ],
 
@@ -36,10 +41,5 @@
     "BAT_THEME": "Tomorrow-Night"
   },
 
-  // Run once at creation. Firewall init also happens here.
-  "postCreateCommand": "bash .devcontainer/post-create.sh",
-
-  // Re-apply the firewall every time the container starts (refreshes resolved
-  // IPs; allowlisted services rotate behind CDNs).
-  "postStartCommand": "sudo /usr/local/bin/init-firewall.sh"
+  "postCreateCommand": "bash .devcontainer/post-create.sh"
 }

@@ -35,54 +35,78 @@ The `pi()` shell function from your host `.zshrc` runs unchanged —
 
 ## Firewall
 
-All egress is dropped by default. The allowlist lives in
-[`init-firewall.sh`](./init-firewall.sh) and currently covers:
+Egress filtering is handled by the
+[w3cj/devcontainer-features/firewall](https://github.com/w3cj/devcontainer-features/tree/main/src/firewall)
+devcontainer feature. It uses `iptables` + `ipset` with Docker DNS
+preservation, Docker network detection, config integrity checking,
+and optional verbose block notifications.
 
-| Purpose           | Hosts |
-|-------------------|-------|
-| GitHub            | `github.com`, `api.github.com`, `codeload.github.com`, `objects.githubusercontent.com`, `raw.githubusercontent.com`, `gist.githubusercontent.com` |
-| npm               | `registry.npmjs.org` |
-| PyPI              | `pypi.org`, `files.pythonhosted.org` |
-| crates.io         | `crates.io`, `static.crates.io`, `index.crates.io` |
-| Anthropic         | `api.anthropic.com`, `statsig.anthropic.com` |
-| Mistral           | `api.mistral.ai`, `codestral.mistral.ai` |
-| opencode          | `opencode.ai`, `api.opencode.ai` |
-| 1Password         | `my.1password.com`, `events.1password.com` |
+### Enabled allowlists
 
-To add a host: edit `ALLOWED_HOSTS` in `init-firewall.sh`, then either
-rebuild (`devcontainer up --remove-existing-container --workspace-folder .`)
-or re-run the firewall inside a running container:
+| Feature flag       | What it allows                                               |
+| ------------------ | ------------------------------------------------------------ |
+| `claudeCode`       | Anthropic API + static IPs, Sentry, npm, VS Code marketplace |
+| `mistralApi`       | `api.mistral.ai`, `mistral.ai`                              |
+| `githubDomains`    | `github.com`, `api.github.com`, `raw.githubusercontent.com`, `ghcr.io`, etc. |
+| `githubIps`        | GitHub IP ranges (fetched at runtime from GitHub's API)      |
+| `npmRegistry`      | `registry.npmjs.org`                                         |
+| `pypi`             | `pypi.org`, `files.pythonhosted.org`                         |
+| `cratesIoRegistry` | `crates.io`, `static.crates.io`, `index.crates.io`          |
+| `ubuntuPackages`   | `archive.ubuntu.com`, `security.ubuntu.com`                  |
+
+### Extra hosts (not covered by built-in flags)
+
+Added via the `hosts` option:
+
+- `opencode.ai`, `api.opencode.ai` — pi's default opencode provider
+- `my.1password.com`, `events.1password.com` — 1Password service account API
+
+### Verbose mode
+
+With `verbose: true`, blocked connections show inline terminal
+notifications with the resolved domain name. Inspect logs with:
+
+```bash
+sudo dmesg | grep FW-BLOCKED
+cat /var/log/firewall-blocks.log
+```
+
+### Adding hosts
+
+Edit the `hosts` field in `devcontainer.json`, then rebuild:
+
+```bash
+devcontainer up --remove-existing-container --workspace-folder .
+```
+
+Or re-init the firewall in a running container:
 
 ```bash
 sudo /usr/local/bin/init-firewall.sh
 ```
 
-Blocked traffic is rate-limited-logged to dmesg with prefix `FW-DROP-OUT:`.
-Inspect with `sudo dmesg | grep FW-DROP-OUT` when something breaks.
-
 ## Mounts
 
-| Host path                    | Container path                        | Mode |
-|------------------------------|---------------------------------------|------|
-| `~/.config/nvim`             | `/home/vscode/.config/nvim`           | RO   |
-| `~/.config/zsh`              | `/home/vscode/.config/zsh`            | RO   |
-| `~/.config/bat`              | `/home/vscode/.config/bat`            | RO   |
-| `~/.config/git`              | `/home/vscode/.config/git`            | RO   |
-| `~/.config/tmux`             | `/home/vscode/.config/tmux`           | RO   |
-| `~/.config/claude`           | `/home/vscode/.config/claude`         | RW   |
-| `~/.config/pi`               | `/home/vscode/.config/pi`             | RW   |
-| `~/.config/secrets`          | `/home/vscode/.config/secrets`        | RO   |
+| Host path          | Container path                  | Mode |
+| ------------------ | ------------------------------- | ---- |
+| `~/.config/nvim`   | `/home/vscode/.config/nvim`     | RO   |
+| `~/.config/zsh`    | `/home/vscode/.config/zsh`      | RO   |
+| `~/.config/bat`    | `/home/vscode/.config/bat`      | RO   |
+| `~/.config/git`    | `/home/vscode/.config/git`      | RO   |
+| `~/.config/tmux`   | `/home/vscode/.config/tmux`     | RO   |
+| `~/.config/claude` | `/home/vscode/.config/claude`   | RW   |
+| `~/.config/pi`     | `/home/vscode/.config/pi`       | RW   |
+| `~/.config/secrets` | `/home/vscode/.config/secrets` | RO   |
 
 Agent state (`claude`, `pi`) is RW so sessions persist across rebuilds.
 
 ## Known gaps
 
 -  Stable Rust + `rust-analyzer`, `clippy`, `rustfmt` are baked in at
-  build time. Adding other toolchains or components at runtime
-  (`rustup install nightly`, `rustup component add miri`) will fail —
-  `static.rust-lang.org` isn't in the runtime allowlist. Bake extras into
-  the Dockerfile, or add the host.
+  build time. Adding other toolchains or components at runtime will fail —
+  `static.rust-lang.org` isn't in the allowlist. Bake extras into the
+  Dockerfile, or add the host.
 -  Neovim plugins that fetch from hosts other than GitHub will fail on first
-  `:Lazy sync`. Add the host to `ALLOWED_HOSTS`.
+  `:Lazy sync`. Add the host to the `hosts` option.
 -  The `brew --prefix` shim in [`post-create.sh`](./post-create.sh) only
   handles `--prefix`; any other `brew` subcommand errors out.
