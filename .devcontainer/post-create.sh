@@ -47,12 +47,24 @@ sudo ln -sfn "$HOME/code/agentish" "$HOST_HOME/code/agentish"
 sudo ln -sfn "$HOME/.agents" "$HOST_HOME/.agents"
 sudo ln -sfn "$HOME/.config" "$HOST_HOME/.config"
 
-# --- 1Password service-account token ------------------------------------------
-if [[ -r "$HOME/.config/secrets/op-sa-token" ]]; then
-  cat >"$HOME/.zshenv" <<'EOF'
-[ -r "$HOME/.config/secrets/op-sa-token" ] && \
-  export OP_SERVICE_ACCOUNT_TOKEN="$(cat "$HOME/.config/secrets/op-sa-token")"
-EOF
+# --- neovim -------------------------------------------------------------------
+# ~/.config/nvim is mounted RO, but ~/.config itself is writable. Copy the
+# config to a sibling dir so lazy.nvim can write lazy-lock.json and clone
+# plugins at the pinned versions. NVIM_APPNAME tells nvim to use it.
+if [[ ! -d "$HOME/.config/nvim-sandbox" ]]; then
+  cp -r "$HOME/.config/nvim" "$HOME/.config/nvim-sandbox"
 fi
+
+# --- .zshenv ------------------------------------------------------------------
+{
+  if [[ -r "$HOME/.config/secrets/op-sa-token" ]]; then
+    echo 'export OP_SERVICE_ACCOUNT_TOKEN="$(cat "$HOME/.config/secrets/op-sa-token")"'
+  fi
+  echo 'export NVIM_APPNAME="nvim-sandbox"'
+} >"$HOME/.zshenv"
+
+# Install lazy.nvim plugins pinned to the versions in lazy-lock.json so the
+# container matches the host nvim state (no surprise plugin upgrades).
+NVIM_APPNAME=nvim-sandbox nvim --headless '+Lazy! restore' +qa || true
 
 echo "post-create complete."
