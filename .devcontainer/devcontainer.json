@@ -41,5 +41,5 @@
     "BAT_THEME": "Tomorrow-Night"
   },
 
-  "postCreateCommand": "bash .devcontainer/post-create.sh"
+  "postCreateCommand": "bash /usr/local/bin/post-create.sh"
 }

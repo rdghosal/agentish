@@ -48,6 +48,9 @@ RUN npm install -g @mariozechner/pi-coding-agent @anthropic-ai/claude-code \
 RUN curl -fsSL https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh \
       | bash -s -- --bin-dir /usr/local/bin
 
+COPY post-create.sh /usr/local/bin/post-create.sh
+RUN chmod +x /usr/local/bin/post-create.sh
+
 USER ${USERNAME}
 
 # Rust (user-scoped, at build time to avoid needing sh.rustup.rs in the firewall allowlist)
