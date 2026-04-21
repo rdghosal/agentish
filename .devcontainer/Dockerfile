@@ -17,10 +17,11 @@ RUN ln -sf /usr/bin/fdfind /usr/local/bin/fd \
  && ln -sf /usr/bin/batcat /usr/local/bin/bat
 
 # Neovim
+ARG NVIM_VERSION=v0.10.1
 RUN curl -fsSL -o /tmp/nvim.tar.gz \
-      https://github.com/neovim/neovim/releases/latest/download/nvim-linux-x86_64.tar.gz \
+      "https://github.com/neovim/neovim/releases/download/${NVIM_VERSION}/nvim-linux64.tar.gz" \
  && tar -C /opt -xzf /tmp/nvim.tar.gz \
- && ln -sf /opt/nvim-linux-x86_64/bin/nvim /usr/local/bin/nvim \
+ && ln -sf /opt/nvim-linux64/bin/nvim /usr/local/bin/nvim \
  && rm /tmp/nvim.tar.gz
 
 # Node.js (for pi + Claude Code)
