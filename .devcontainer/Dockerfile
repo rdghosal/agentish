@@ -11,6 +11,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
       build-essential pkg-config \
       python3 python3-pip python3-venv pipx \
       fd-find fzf bat ripgrep jq less man-db \
+      locales \
+    && locale-gen ja_JP.UTF-8 \
+    && localedef -i ja_JP -f UTF-8 ja_JP \
     && rm -rf /var/lib/apt/lists/*
 
 RUN ln -sf /usr/bin/fdfind /usr/local/bin/fd \
