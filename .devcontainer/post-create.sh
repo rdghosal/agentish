@@ -36,6 +36,17 @@ if [[ "$(getent passwd "$USER" | cut -d: -f7)" != "$(command -v zsh)" ]]; then
   sudo chsh -s "$(command -v zsh)" "$USER"
 fi
 
+# --- agent config symlinks -----------------------------------------------------
+# Host symlinks in ~/.config/claude and ~/.config/pi/agent use absolute host
+# paths (e.g. /Users/<you>/...). Rather than rewriting them (which would mutate
+# the RW-mounted host files), recreate the host paths inside the container as
+# symlinks to the real mount points. The existing symlinks then resolve as-is.
+# HOST_HOME is injected via devcontainer.json containerEnv (${localEnv:HOME}).
+sudo mkdir -p "$HOST_HOME/code"
+sudo ln -sfn "$HOME/code/agentish" "$HOST_HOME/code/agentish"
+sudo ln -sfn "$HOME/.agents" "$HOST_HOME/.agents"
+sudo ln -sfn "$HOME/.config" "$HOST_HOME/.config"
+
 # --- 1Password service-account token ------------------------------------------
 if [[ -r "$HOME/.config/secrets/op-sa-token" ]]; then
   cat >"$HOME/.zshenv" <<'EOF'

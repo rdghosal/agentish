@@ -30,12 +30,17 @@
     "source=${localEnv:HOME}/.config/claude,target=/home/vscode/.config/claude,type=bind",
     "source=${localEnv:HOME}/.config/pi,target=/home/vscode/.config/pi,type=bind",
 
-    "source=${localEnv:HOME}/.config/secrets,target=/home/vscode/.config/secrets,type=bind,readonly"
+    "source=${localEnv:HOME}/.config/secrets,target=/home/vscode/.config/secrets,type=bind,readonly",
+
+    "source=${localEnv:HOME}/code/agentish,target=/home/vscode/code/agentish,type=bind,readonly",
+
+    "source=${localEnv:HOME}/.agents,target=/home/vscode/.agents,type=bind,readonly"
   ],
 
   "containerEnv": {
     "PI_CODING_AGENT_DIR": "/home/vscode/.config/pi/agent",
     "CLAUDE_CONFIG_DIR": "/home/vscode/.config/claude",
+    "HOST_HOME": "${localEnv:HOME}",
     "EDITOR": "nvim",
     "PAGER": "bat",
     "BAT_THEME": "Tomorrow-Night"
