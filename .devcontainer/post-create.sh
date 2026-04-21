@@ -63,8 +63,19 @@ fi
   echo 'export NVIM_APPNAME="nvim-sandbox"'
 } >"$HOME/.zshenv"
 
+# --- theme / plugin caches ----------------------------------------------------
+# bat needs its theme cache built once per container; ~/.config/bat is RO but
+# ~/.cache/bat is writable.
+bat cache --build >/dev/null 2>&1 || true
+
 # Install lazy.nvim plugins pinned to the versions in lazy-lock.json so the
 # container matches the host nvim state (no surprise plugin upgrades).
 NVIM_APPNAME=nvim-sandbox nvim --headless '+Lazy! restore' +qa || true
+
+# Warm the git metadata for the mounted workspace. Docker Desktop bind mounts
+# on macOS have cold first-access latency, so the initial oh-my-zsh prompt and
+# fugitive/gitsigns detection often miss the repo until .git is cached.
+# postCreateCommand runs with CWD = workspaceFolder, so $PWD is the repo root.
+[[ -d .git ]] && git status >/dev/null 2>&1 || true
 
 echo "post-create complete."
