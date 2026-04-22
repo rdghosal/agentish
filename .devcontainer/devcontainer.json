@@ -17,29 +17,29 @@
     }
   },
 
-  "remoteUser": "vscode",
-  "containerUser": "vscode",
+  "remoteUser": "rdev",
+  "containerUser": "rdev",
 
   "mounts": [
-    "source=${localEnv:HOME}/.config/nvim,target=/home/vscode/.config/nvim,type=bind,readonly",
-    "source=${localEnv:HOME}/.config/zsh,target=/home/vscode/.config/zsh,type=bind,readonly",
-    "source=${localEnv:HOME}/.config/bat,target=/home/vscode/.config/bat,type=bind,readonly",
-    "source=${localEnv:HOME}/.config/git,target=/home/vscode/.config/git,type=bind,readonly",
-    "source=${localEnv:HOME}/.config/tmux,target=/home/vscode/.config/tmux,type=bind,readonly",
+    "source=${localEnv:HOME}/.config/nvim,target=/home/rdev/.config/nvim,type=bind,readonly",
+    "source=${localEnv:HOME}/.config/zsh,target=/home/rdev/.config/zsh,type=bind,readonly",
+    "source=${localEnv:HOME}/.config/bat,target=/home/rdev/.config/bat,type=bind,readonly",
+    "source=${localEnv:HOME}/.config/git,target=/home/rdev/.config/git,type=bind,readonly",
+    "source=${localEnv:HOME}/.config/tmux,target=/home/rdev/.config/tmux,type=bind,readonly",
 
-    "source=${localEnv:HOME}/.config/claude,target=/home/vscode/.config/claude,type=bind",
-    "source=${localEnv:HOME}/.config/pi,target=/home/vscode/.config/pi,type=bind",
+    "source=${localEnv:HOME}/.config/claude,target=/home/rdev/.config/claude,type=bind",
+    "source=${localEnv:HOME}/.config/pi,target=/home/rdev/.config/pi,type=bind",
 
-    "source=${localEnv:HOME}/.config/secrets,target=/home/vscode/.config/secrets,type=bind,readonly",
+    "source=${localEnv:HOME}/.config/secrets,target=/home/rdev/.config/secrets,type=bind,readonly",
 
-    "source=${localEnv:HOME}/code/agentish,target=/home/vscode/code/agentish,type=bind,readonly",
+    "source=${localEnv:HOME}/code/agentish,target=/home/rdev/code/agentish,type=bind,readonly",
 
-    "source=${localEnv:HOME}/.agents,target=/home/vscode/.agents,type=bind,readonly"
+    "source=${localEnv:HOME}/.agents,target=/home/rdev/.agents,type=bind,readonly"
   ],
 
   "containerEnv": {
-    "PI_CODING_AGENT_DIR": "/home/vscode/.config/pi/agent",
-    "CLAUDE_CONFIG_DIR": "/home/vscode/.config/claude",
+    "PI_CODING_AGENT_DIR": "/home/rdev/.config/pi/agent",
+    "CLAUDE_CONFIG_DIR": "/home/rdev/.config/claude",
     "HOST_HOME": "${localEnv:HOME}",
     "EDITOR": "nvim",
     "PAGER": "bat",

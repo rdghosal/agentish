@@ -1,6 +1,15 @@
 FROM mcr.microsoft.com/devcontainers/base:ubuntu-24.04
 
-ARG USERNAME=vscode
+ARG USERNAME=rdev
+
+# Rename the base image's default `vscode` user (UID 1000, passwordless sudo)
+# in place. Preserves UID/GID and sudo group membership; just updates the name,
+# home dir, and sudoers drop-in.
+RUN usermod -l ${USERNAME} vscode \
+ && groupmod -n ${USERNAME} vscode \
+ && usermod -d /home/${USERNAME} -m ${USERNAME} \
+ && sed -i "s/vscode/${USERNAME}/g" /etc/sudoers.d/vscode \
+ && mv /etc/sudoers.d/vscode /etc/sudoers.d/${USERNAME}
 
 ENV DEBIAN_FRONTEND=noninteractive \
     LANG=C.UTF-8 \
