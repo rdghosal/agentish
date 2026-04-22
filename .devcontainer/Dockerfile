@@ -40,10 +40,6 @@ RUN curl -fsSL https://downloads.1password.com/linux/keys/1password.asc \
  && apt-get update && apt-get install -y --no-install-recommends 1password-cli \
  && rm -rf /var/lib/apt/lists/*
 
-# Global npm installs: pi + Claude Code
-RUN npm install -g @mariozechner/pi-coding-agent @anthropic-ai/claude-code \
- && npm cache clean --force
-
 # zoxide
 RUN curl -fsSL https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh \
       | bash -s -- --bin-dir /usr/local/bin
@@ -52,6 +48,15 @@ COPY post-create.sh /usr/local/bin/post-create.sh
 RUN chmod +x /usr/local/bin/post-create.sh
 
 USER ${USERNAME}
+
+# User-scoped npm prefix so `npm install -g` works without sudo — lets pi
+# self-update and lets the user pull latest pi/claude-code without a rebuild.
+ENV NPM_CONFIG_PREFIX=/home/${USERNAME}/.npm-global
+ENV PATH=/home/${USERNAME}/.npm-global/bin:${PATH}
+
+RUN mkdir -p /home/${USERNAME}/.npm-global \
+ && npm install -g @mariozechner/pi-coding-agent @anthropic-ai/claude-code \
+ && npm cache clean --force
 
 # Rust (user-scoped, at build time to avoid needing sh.rustup.rs in the firewall allowlist)
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs \
